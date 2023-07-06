@@ -1,0 +1,13 @@
+FROM python:3.11-slim-bookworm
+
+MAINTAINER Dary Altamirano
+
+RUN apt-get update
+
+RUN apt-get install -y python
+
+ADD  request.py /request.py
+
+CMD ["/request.py"]
+
+ENTRYPOINT ["python3"]
