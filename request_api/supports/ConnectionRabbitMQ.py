@@ -1,14 +1,15 @@
-from django.conf import settings
+import os
 import pika
 
 class ConnectionRabbitMQ:
     
     def __init__(self):
-        self.host = settings.RABBITMQ["default"]["HOST"]
-        self.port = settings.RABBITMQ["default"]["PORT" ]
-        self.user = settings.RABBITMQ["default"]["USER"]
-        self.password = settings.RABBITMQ["default"]["PASSWORD"]
-        self.queue= settings.RABBITMQ["default"]["QUEUE"]
+        self.host = os.getenv('RABBITMQ_HOST')
+        self.port = os.getenv('RABBITMQ_PORT')
+        self.user = os.getenv('RABBITMQ_USER')
+        self.password = os.getenv('RABBITMQ_PASSWORD')
+        self.queue= os.getenv('RABBITMQ_QUEUE')
+
 
     def channel(self):
 

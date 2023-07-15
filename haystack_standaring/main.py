@@ -9,7 +9,6 @@ def callback(self,ch, method, properties, body):
         print(" [x] Received %r" % body)
 
 def main():
-    print("Hello, world!")
     channel = ConnectionRabbitMQ().channel()
     ConnectionRabbitMQ().basicConsume(channel, callback, None)
 

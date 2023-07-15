@@ -1,19 +1,19 @@
 import os
 from dotenv import load_dotenv
 import time
+from supports.MysqlConnection import MysqlConnection
 from supports.ConnectionRabbitMQ import ConnectionRabbitMQ
 
 load_dotenv()
 
-def callback(self,ch, method, properties, body):
-        print(" [x] Received %r" % body)
 
 def main():
-    print("Hello, world!")
-    channel = ConnectionRabbitMQ().channel()
-    ConnectionRabbitMQ().basicConsume(channel, callback, None)
 
-    # Rest of your code goes here
+    print(os.getenv('UUID_SENSOR'))
+    sql = "SELECT * FROM TABLES WHERE TABLE_SCHEMA LIKE 'information_schema';"
+    sensor_data = MysqlConnection().getData(sql=sql)
+
+    print(sensor_data)
 
 
 if __name__ == "__main__":
