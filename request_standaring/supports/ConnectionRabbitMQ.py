@@ -8,7 +8,9 @@ class ConnectionRabbitMQ:
         self.port = os.getenv('RABBITMQ_PORT')
         self.user = os.getenv('RABBITMQ_USER')
         self.password = os.getenv('RABBITMQ_PASSWORD')
-        self.queue= os.getenv('RABBITMQ_QUEUE')
+        self.queue_consumer= os.getenv('RABBITMQ_CONSUMER_QUEUE')
+        self.queue_publisher= os.getenv('RABBITMQ_PUBLISH_QUEUE')
+
 
     def channel(self):
 
@@ -18,15 +20,13 @@ class ConnectionRabbitMQ:
 
         channel = connection.channel()
 
-        channel.queue_declare(queue=self.queue)
-
         return channel
 
     def basicConsume(self, channel, callback, queue = None): 
         if queue == None:
-            queue = self.queue
-        else:
-            channel.queue_declare(queue)
+            queue = self.queue_consumer
+        
+        channel.queue_declare(queue)
         
         
         channel.basic_consume(queue=queue, on_message_callback=callback, auto_ack=True)
@@ -37,7 +37,9 @@ class ConnectionRabbitMQ:
 
     def basicPublish(self, channel, body, queue = None): 
         if queue == None:
-            queue = self.queue
+            queue = self.queue_publisher
+        
+        channel.queue_declare(queue)
 
         channel.basic_publish(exchange='', routing_key=queue, body=body)
         

@@ -11,13 +11,7 @@ class ApiConsume():
 
     def request(self, url, params = {}, headers = {}):
 
-        # TODO: replace this with the API key from your Kaiterra account
-        API_KEY = "eChX8mCYibGmYb0qlcZX3cmxOQf7xgO2qcWCEplw49ixpy6V"
-        params = {}
-        params['key'] = API_KEY
-
-        url = "https://api.kaiterra.com/v1/lasereggs/dd85475c-a5ef-4a15-b00f-206e408528b2"
-        response = self.session.get(url, params=params, headers={})
+        response = self.session.get(url, params=params, headers=headers)
         
         content_str = ''
 
