@@ -9,7 +9,6 @@ import json
 load_dotenv()
 
 def main():
-
     id = os.getenv('ID_SENSOR')
 
     sql = '''select request.headers, request.params, scheduler.uri
@@ -18,23 +17,22 @@ def main():
         inner join sensor_driver_scheduler as scheduler on (scheduler.sensor_id = sensor.id) 
         where sensor.id = {}
         LIMIT 1;'''.format(id)
-    
     sensor_data = MysqlConnection().getData(sql=sql)
-    print("gola")
-    dict_headers = json.loads(sensor_data[0][0])
-    dict_params = json.loads(sensor_data[0][1])
+
+    dict_headers = json.loads(sensor_data[0][0].replace("\'", "\"")[1 : len(sensor_data[0][0]) - 1])
+    dict_params = json.loads(sensor_data[0][1].replace("\'", "\"")[1 : len(sensor_data[0][1]) - 1])
     url = sensor_data[0][2]
 
-    data = ApiConsume().request(url,dict_params, dict_headers)
+    data = ApiConsume().request(url, dict_params, dict_headers)
 
     body = {
-        'id_sensor' : id,
-        'data' : data
+        'id_sensor': id,
+        'data': data
     }
-    print(body)
+
     channel = ConnectionRabbitMQ().channel()
-    ConnectionRabbitMQ().basicPublish(channel, body)
+    ConnectionRabbitMQ().basicPublish(channel, json.dumps(body))
+
 
 if __name__ == "__main__":
     main()
-

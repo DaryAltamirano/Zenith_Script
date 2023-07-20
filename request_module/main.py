@@ -1,19 +1,25 @@
 import os
 from dotenv import load_dotenv
 import time
+
+from supports.MysqlConnection import MysqlConnection
 from supports.ConnectionRabbitMQ import ConnectionRabbitMQ
 
 load_dotenv()
 
 def callback(self, method, properties, body):
-        print(" [x] Received %r" % body)
+    id = os.getenv('ID_SENSOR')
 
+    sql = '''select format
+                from sensor_driver_sensor  
+                where id = {}
+                LIMIT 1;'''.format(id)
+
+    sensor_data = MysqlConnection().getData(sql=sql)
+    print(sensor_data)
 def main():
-    print("Hello, world!")
     channel = ConnectionRabbitMQ().channel()
     ConnectionRabbitMQ().basicConsume(channel, callback, None)
-
-    # Rest of your code goes here
 
 
 if __name__ == "__main__":
