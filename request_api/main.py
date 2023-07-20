@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 import time
-from request_api.supports.ApiConsume import ApiConsume
+from supports.ApiConsume import ApiConsume
 from supports.MysqlConnection import MysqlConnection
 from supports.ConnectionRabbitMQ import ConnectionRabbitMQ
 import json
@@ -20,7 +20,7 @@ def main():
         LIMIT 1;'''.format(id)
     
     sensor_data = MysqlConnection().getData(sql=sql)
-
+    print("gola")
     dict_headers = json.loads(sensor_data[0][0])
     dict_params = json.loads(sensor_data[0][1])
     url = sensor_data[0][2]
@@ -31,6 +31,7 @@ def main():
         'id_sensor' : id,
         'data' : data
     }
+    print(body)
     channel = ConnectionRabbitMQ().channel()
     ConnectionRabbitMQ().basicPublish(channel, body)
 
