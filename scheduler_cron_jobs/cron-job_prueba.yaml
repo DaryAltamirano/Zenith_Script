@@ -1,0 +1,16 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: test-cronjob
+  namespace: zenith
+spec:
+  schedule: "*/1 * * * *"  # Ejecuta cada minuto
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: test-cronjob-container
+            image: busybox  #
+            command: ["echo", "Este es un CronJob de prueba."]
+          restartPolicy: OnFailure
