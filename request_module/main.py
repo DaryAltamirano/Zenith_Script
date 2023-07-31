@@ -43,7 +43,8 @@ def callback(self, method, properties, body):
     for item in json_sensor["data"]:
         response["data"].append({
             'value': data_get(json_object["data"], item['key'], "$"),
-            'unit': item['unit']
+            'unit': item['unit'],
+            'category': item['category']
         })
 
     channel = ConnectionRabbitMQ().channel()

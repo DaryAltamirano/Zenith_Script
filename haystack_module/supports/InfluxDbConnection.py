@@ -16,7 +16,3 @@ class InfluxDbConnection:
         client = InfluxDBClient(url=self.url, token=self.token, org=self.org)
         self.write_api = client.write_api(write_options=SYNCHRONOUS)
 
-    def insertData(self, body=None):
-        p = Point("my_measurement").tag("location", "Prague").field("temperature", 25.3)
-
-        self.write_api.write(bucket=self.bucket, record=p)
