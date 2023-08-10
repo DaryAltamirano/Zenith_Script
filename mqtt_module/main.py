@@ -1,4 +1,5 @@
 import json
+from aiocoap import *
 
 from dotenv import load_dotenv
 from influxdb_client import Point
@@ -20,13 +21,12 @@ def callback(self, method, properties, body):
         .tag("sensor_id", id_sensor)\
         .field("value", json_object['data']['value'])
 
-    influxdb.write_api.write(bucket=self.bucket, record=p)
+    #influxdb.write_api.write(bucket=self.bucket, record=p)
 
 
 def main():
     channel = ConnectionRabbitMQ().channel()
     ConnectionRabbitMQ().basicConsume(channel, callback, None)
-
 
 if __name__ == "__main__":
     main()
