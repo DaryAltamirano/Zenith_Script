@@ -1,6 +1,6 @@
 from kubernetes import client, config
 from kubernetes.client import V1Container, V1PodSpec, V1ObjectMeta, V1PodTemplateSpec, V1JobTemplateSpec, V1CronJob
-
+import yaml
 
 class CronJobsKubernets:
 
@@ -18,16 +18,16 @@ class CronJobsKubernets:
 
     def create_cronjob(self, name, namespace):
         config.load_kube_config()
-
+        test =  {'schedule': '*/1 * * * *'}
         cron_job = V1CronJob(
             api_version="batch/v1",
             kind="CronJob",
             metadata=V1ObjectMeta(name=name, namespace=namespace),
             spec=V1JobTemplateSpec(
-
+            **test ,
                 spec=V1PodTemplateSpec(
-
                     spec=V1PodSpec(
+                        scheduling_gates="* * * *",
                         restart_policy="OnFailure",
                         containers=[
                             V1Container(
