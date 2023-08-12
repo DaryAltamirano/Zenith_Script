@@ -1,4 +1,3 @@
-from aiocoap import *
 import os
 from dotenv import load_dotenv
 import json
@@ -6,8 +5,8 @@ import logging
 import asyncio
 from supports.MysqlConnection import MysqlConnection
 from supports.ConnectionRabbitMQ import ConnectionRabbitMQ
-import asyncio
-from aiocoap import *
+from pymodbus.client import AsyncModbusTcpClient
+
 logging.basicConfig(level=logging.INFO)
 
 load_dotenv()
@@ -25,26 +24,41 @@ async def main():
     
     sensor_data = MysqlConnection().getData(sql=sql)
 
-    protocol = await Context.create_client_context()
-
-    request = Message(code="GET", uri='coap://localhost/time')
-
+    client = AsyncModbusTcpClient("localhost")
     try:
-        response = await protocol.request(request).response
+        # Realiza una lectura de datos desde el dispositivo esclavo
+        result = await client.read_coils(address=0, count=8, unit=1)
+        bits = result.bits
 
+        print("Datos leídos:", result.bits)
+        # Divide la secuencia de bits en grupos de 8 bits
+        byte_strings = bits.split(" ")
+
+        # Convierte cada byte en un carácter y crea una lista de caracteres
+        characters = [chr(int(byte, 2)) for byte in byte_strings]
+
+        # Convierte la lista de caracteres en una cadena de caracteres
+        text = "".join(characters)
+        
         body = {
             'id_sensor': id,
-            'data': response.payload,
+            'data': text,
             'protocol': 'HTTP'
         }
 
         channel = ConnectionRabbitMQ().channel()
         ConnectionRabbitMQ().basicPublish(channel, json.dumps(body))
     except Exception as e:
-        print('Failed to fetch resource:')
-        print(e)
-    else:
-        print('Result: %s\n%r'%(response.code, response.payload))
+        print("Error:", e)
+
+
+    await client.connect()
+    
+
+
+
 
 if __name__ == "__main__":
     asyncio.run(main())
+
+

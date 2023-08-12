@@ -9,9 +9,12 @@ class ApiConsume():
     def __init__(self) -> None:
         pass
 
-    def request(self, url, params = {}, headers = {}):
-
-        response = self.session.get(url, params=params, headers=headers)
+    def request(self, url, params = {}, headers = {}, method = 'get'):
+    
+        if (method == 'get'):
+            response = self.session.get(url, params=params, headers=headers)
+        elif(method == 'post'):
+            response = self.session.post(url, params=params, headers=headers)
         
         content_str = ''
 
