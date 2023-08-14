@@ -10,7 +10,7 @@ load_dotenv()
 
 def callback(self, method, properties, body):
     if body['action'] == 'new_sensor':
-        scheduler()
+        scheduler(body['sensor_id'])
     elif body['action'] == 'delete_sensor':
         kubert = CronJobsKubernets()
         kubert.deleteCronJob("cron-jobs-" + body['sensor_id'] , "zenith-beta")
@@ -52,5 +52,6 @@ def scheduler(id):
 def main():
     channel = ConnectionRabbitMQ().channel()
     ConnectionRabbitMQ().basicConsume(channel, callback, None)
+
 if __name__ == "__main__":
     main()

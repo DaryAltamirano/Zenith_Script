@@ -1,7 +1,7 @@
 apiVersion: batch/v1
-kind: CronJob
+kind: Job
 metadata:
-  name: test-cronjob
+  name: test-job
   namespace: zenith-beta
 spec:
   schedule: "*/1 * * * *"  # Ejecuta cada minuto
@@ -10,7 +10,7 @@ spec:
       template:
         spec:
           containers:
-          - name: test-cronjob-container
+          - name: test-job-container
             image: busybox  #
             command: ["echo", "Este es un CronJob de prueba."]
             env:  # Agregar esta sección para definir variables de entorno

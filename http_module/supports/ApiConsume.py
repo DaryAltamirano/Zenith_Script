@@ -11,9 +11,9 @@ class ApiConsume():
 
     def request(self, url, params = {}, headers = {}, method = 'get'):
     
-        if (method == 'get'):
+        if (method == 'GET'):
             response = self.session.get(url, params=params, headers=headers)
-        elif(method == 'post'):
+        elif(method == 'POST'):
             response = self.session.post(url, params=params, headers=headers)
         
         content_str = ''

@@ -1,0 +1,1 @@
+ docker run -e MYSQL_HOST="db" -e RABBITMQ_HOST="rabbitmq" -e MYSQL_USER="zenith" -e MYSQL_PASSWORD="zenith" --net=zenith_zenith --name=scheduler scheduler

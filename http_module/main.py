@@ -7,6 +7,7 @@ import json
 
 load_dotenv()
 
+
 def main():
     id = os.getenv('ID_SENSOR')
 
@@ -17,11 +18,12 @@ def main():
         where sensor.id = {}
         LIMIT 1;'''.format(id)
     sensor_data = MysqlConnection().getData(sql=sql)
+    dict = json.loads(clearData(sensor_data[0][0]))
 
-    dict_headers = json.loads(sensor_data[0][0].replace("\'", "\"")[1 : len(sensor_data[0][0]) - 1])
-    dict_params = json.loads(sensor_data[0][1].replace("\'", "\"")[1 : len(sensor_data[0][1]) - 1])
-    method = json.loads(sensor_data[0][2].replace("\'", "\"")[1 : len(sensor_data[0][2]) - 1])
-    url = sensor_data[0][3]
+    dict_headers = dict['headers']
+    dict_params = dict['params']
+    method = dict['method']
+    url = dict['uri']
 
     data = ApiConsume().request(url, dict_params, dict_headers, method)
 
@@ -30,9 +32,13 @@ def main():
         'data': data,
         'protocol': 'HTTP'
     }
-
     channel = ConnectionRabbitMQ().channel()
     ConnectionRabbitMQ().basicPublish(channel, json.dumps(body))
+
+
+def clearData(sensor_data):
+    string = sensor_data.replace("\'", "\"").replace("\\", "")
+    return string[1: len(string) - 1]
 
 
 if __name__ == "__main__":

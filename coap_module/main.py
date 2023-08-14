@@ -22,19 +22,28 @@ async def main():
         inner join sensor_driver_scheduler as scheduler on (scheduler.sensor_id = sensor.id) 
         where sensor.id = {}
         LIMIT 1;'''.format(id)
-    
     sensor_data = MysqlConnection().getData(sql=sql)
-
-    protocol = await Context.create_client_context()
-
-    request = Message(code="GET", uri='coap://localhost/time')
+    dict = json.loads(clearData(sensor_data[0][0]))
+    uri = dict['uri']
+    method = dict['method']
+    port = dict['port']
 
     try:
-        response = await protocol.request(request).response
+        protocol = await Context.create_client_context()
 
+        if method == 'GET':
+            method = GET
+        elif method == 'POST':
+            method = POST
+        else: 
+            method = GET
+ 
+        request = Message(code=method, uri=uri)
+
+        response = await protocol.request(request).response
         body = {
             'id_sensor': id,
-            'data': response.payload,
+            'data': response.payload.decode('utf-8'),
             'protocol': 'HTTP'
         }
 
@@ -43,8 +52,11 @@ async def main():
     except Exception as e:
         print('Failed to fetch resource:')
         print(e)
-    else:
-        print('Result: %s\n%r'%(response.code, response.payload))
+
+def clearData(sensor_data):
+    string = sensor_data.replace("\'", "\"").replace("\\", "")
+    return string[1: len(string) - 1]
 
 if __name__ == "__main__":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(main())

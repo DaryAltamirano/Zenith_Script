@@ -18,6 +18,7 @@ client_id = f'python-mqtt-{random.randint(0, 1000)}'
 
 FIRST_RECONNECT_DELAY = 1
 RECONNECT_RATE = 2
+
 MAX_RECONNECT_COUNT = 12
 MAX_RECONNECT_DELAY = 60
 
@@ -54,9 +55,9 @@ def subscribe(client: mqtt_client, topic):
             'protocol': 'MQTT'
         }
 
+        print(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
         channel = ConnectionRabbitMQ().channel()
         ConnectionRabbitMQ().basicPublish(channel, json.dumps(body))
-        print(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
 
     client.subscribe(topic)
     client.on_message = on_message
@@ -71,25 +72,30 @@ def connect_mqtt(broker, port, username = None, password = None):
     client.on_connect = on_connect
     client.on_disconnect = on_disconnect
 
-    client.connect(broker, port)
+    client.connect(broker, int(port))
     return client
 
+def clearData(sensor_data):
+    string = sensor_data.replace("\'", "\"").replace("\\", "")
+    return string[1: len(string) - 1]
+
 def main():
+    id = os.getenv('ID_SENSOR')
+
     sql = '''select request.connection
         from sensor_driver_sensor as sensor
         inner join sensor_driver_request as request on (request.sensor_id = sensor.id) 
-        inner join sensor_driver_scheduler as scheduler on (scheduler.sensor_id = sensor.id) 
         where sensor.id = {}
-        LIMIT 1;'''.format(id_sensor)
+        LIMIT 1;'''.format(id)
     sensor_data = MysqlConnection().getData(sql=sql)
-    print(sensor_data)
+    dict = json.loads(clearData(sensor_data[0][0]))
 
-    broker = 'broker.emqx.io'
-    port = 1883
-    topic = "python/mqtt"
-    username = 'emqx'
-    password = 'emqx'
-
+    broker = dict['broker']
+    username = dict['user']
+    password = dict['password']
+    port = dict['port']
+    topic = dict['topic']
+    
     client = connect_mqtt(broker, port, username, password)
     subscribe(client, topic)
     client.loop_forever()

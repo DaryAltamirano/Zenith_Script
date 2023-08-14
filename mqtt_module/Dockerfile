@@ -1,7 +1,5 @@
 FROM python:3.9-slim-buster
 
-ARG UUID_SENDOR=none
-
 WORKDIR /code
 
 ADD  . /code/
