@@ -9,7 +9,7 @@ class CronJobsKubernets:
         config.load_kube_config()
         self.v1 = client.BatchV1Api()
 
-    def deleteCronJob(self, name, namespace):
+    def deleteCronJob(self, name, namespace, protocol):
         try:
             api_response = self.v1.delete_namespaced_cron_job(name=name, namespace=namespace)
             print("Cronjob eliminado exitosamente.")

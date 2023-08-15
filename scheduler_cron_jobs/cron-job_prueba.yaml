@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: test-cronjob
+  name: test-cronjoba
   namespace: zenith-beta
 spec:
   schedule: "*/1 * * * *"  # Ejecuta cada minuto
@@ -10,10 +10,31 @@ spec:
       template:
         spec:
           containers:
-          - name: test-cronjob-container
-            image: busybox  #
-            command: ["echo", "Este es un CronJob de prueba."]
+          - name: test-cronjob-containera
+            image: darypte/coap-zenith:latest
             env:  # Agregar esta sección para definir variables de entorno
-            - name: MI_VARIABLE_ENTORNO
-              value: "MiValor"
+            - name: RABBITMQ_PORT
+              value: "5672"
+            - name: RABBITMQ_HOST
+              value: "192.168.100.43"
+            - name: RABBITMQ_USER
+              value: "guest"
+            - name: RABBITMQ_PASSWORD
+              value: "guest"
+            - name: RABBITMQ_PUBLISH_QUEUE
+              value: "format/data"
+            - name: RABBITMQ_CONSUMER_QUEUE
+              value: ""
+            - name: MYSQL_HOST 
+              value: "192.168.100.43"
+            - name: MYSQL_PORT
+              value: "3306"
+            - name: MYSQL_USER
+              value: "zenith"
+            - name: MYSQL_PASSWORD
+              value: "zenith"
+            - name: MYSQL_DATABASE 
+              value: "zenith"
+            - name: ID_SENSOR 
+              value: "8"
           restartPolicy: OnFailure

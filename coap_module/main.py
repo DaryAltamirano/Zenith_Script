@@ -44,7 +44,7 @@ async def main():
         body = {
             'id_sensor': id,
             'data': response.payload.decode('utf-8'),
-            'protocol': 'HTTP'
+            'protocol': 'COAP'
         }
 
         channel = ConnectionRabbitMQ().channel()
@@ -58,5 +58,4 @@ def clearData(sensor_data):
     return string[1: len(string) - 1]
 
 if __name__ == "__main__":
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(main())
