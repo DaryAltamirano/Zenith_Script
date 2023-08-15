@@ -12,28 +12,23 @@ import json
 load_dotenv()
 
 def callback(self, method, properties, body):
-
-    sql = '''select sensor.protocol
-        from sensor_driver_sensor as sensor
-        inner join sensor_driver_request as request on (request.sensor_id = sensor.id) 
-        inner join sensor_driver_scheduler as scheduler on (scheduler.sensor_id = sensor.id) 
-        where sensor.id = {}
-        LIMIT 1;'''.format(id)
-    sensor_data = MysqlConnection().getData(sql=sql)
-
-    protocol = sensor_data[0][0]
     
+    cadena_decodificada = body.decode('utf-8')
+    body = json.loads(cadena_decodificada)
+    protocol = body['protocol']
+    id = str(body['sensor_id'])
+
     if body['action'] == 'new_sensor':
-        scheduler(body['sensor_id'], protocol)
+        scheduler(id, protocol)
 
     elif body['action'] == 'update_sensor':
         kubert = CronJobsKubernets()
-        kubert.deleteCronJob("cron-jobs-" + body['sensor_id'] , "zenith-beta", protocol)
-        scheduler(body['sensor_id'], protocol)
+        kubert.deleteCronJob("cron-jobs-" + id , "zenith-beta", protocol)
+        scheduler(id, protocol)
 
     elif body['action'] == 'delete_sensor':
         kubert = CronJobsKubernets()
-        kubert.deleteCronJob("cron-jobs-" + body['sensor_id'] , "zenith-beta", protocol)
+        kubert.deleteCronJob("cron-jobs-" + id , "zenith-beta", protocol)
 
 def clearData(sensor_data):
     string = sensor_data.replace("\'", "\"").replace("\\", "")
@@ -68,10 +63,33 @@ def scheduler(id, protocol):
         yml['metadata']['name'] = 'cron-jobs-' + id
         yml['spec']['schedule'] ="*/1 * * * *" 
         yml['spec']['jobTemplate']['spec']['template']['spec']['containers'][0]['name'] = 'cron-jobs-' + id
-        yml['spec']['jobTemplate']['spec']['template']['spec']['containers'][0]['image'] = imagenes['protocol']
+        yml['spec']['jobTemplate']['spec']['template']['spec']['containers'][0]['image'] = imagenes[protocol]
+        dict_env = yml['spec']['jobTemplate']['spec']['template']['spec']['containers'][0]['env']
+
+        for diccionario in dict_env:
+            if diccionario["name"] == "ID_SENSOR":
+                diccionario["value"] = id
+
+        yml['spec']['jobTemplate']['spec']['template']['spec']['containers'][0]['env'] = dict_env
 
         file = './cron_jobs_' + id + '.yaml'
-        
+    else: 
+        yml = yaml_to_dict("./jobs_prueba.yaml")
+
+        yml['metadata']['name'] = 'cron-jobs-' + id
+        yml['spec']['template']['spec']['containers'][0]['name'] = 'jobs-' + id
+        yml['spec']['template']['spec']['containers'][0]['image'] = imagenes[protocol]
+
+        dict_env = yml['spec']['template']['spec']['containers'][0]['env']
+
+        for diccionario in dict_env:
+            if diccionario["name"] == "ID_SENSOR":
+                diccionario["value"] = id
+
+        yml['spec']['template']['spec']['containers'][0]['env'] = dict_env
+
+        file = './job_' + id + '.yaml'
+
     dict_to_yaml_file(yml, file)
 
     command = "kubectl apply -f " + file

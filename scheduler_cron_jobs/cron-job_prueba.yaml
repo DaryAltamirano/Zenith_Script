@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: test-cronjoba
+  name: test-cronjob
   namespace: zenith-beta
 spec:
   schedule: "*/1 * * * *"  # Ejecuta cada minuto
