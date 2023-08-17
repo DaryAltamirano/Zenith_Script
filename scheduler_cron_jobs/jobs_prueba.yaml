@@ -1,13 +1,13 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: test-cronjobasada
+  name: test-job
   namespace: zenith-beta
 spec:
   template:
     spec:
       containers:
-        - name: test-job-containeraasda
+        - name: test-job-container
           image: darypte/mqtt-zenith:latest
           env:  # Agregar esta sección para definir variables de entorno
           - name: RABBITMQ_PORT
@@ -34,4 +34,5 @@ spec:
             value: "zenith"
           - name: ID_SENSOR 
             value: "7"
-      restartPolicy: OnFailure
+      restartPolicy: Never
+  backoffLimit: 4

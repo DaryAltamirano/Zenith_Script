@@ -23,12 +23,12 @@ def callback(self, method, properties, body):
 
     elif body['action'] == 'update_sensor':
         kubert = CronJobsKubernets()
-        kubert.deleteCronJob("cron-jobs-" + id , "zenith-beta", protocol)
+        kubert.deleteTask(id , "zenith-beta", protocol)
         scheduler(id, protocol)
 
     elif body['action'] == 'delete_sensor':
         kubert = CronJobsKubernets()
-        kubert.deleteCronJob("cron-jobs-" + id , "zenith-beta", protocol)
+        kubert.deleteTask(id , "zenith-beta", protocol)
 
 def clearData(sensor_data):
     string = sensor_data.replace("\'", "\"").replace("\\", "")
@@ -76,7 +76,7 @@ def scheduler(id, protocol):
     else: 
         yml = yaml_to_dict("./jobs_prueba.yaml")
 
-        yml['metadata']['name'] = 'cron-jobs-' + id
+        yml['metadata']['name'] = 'jobs-' + id
         yml['spec']['template']['spec']['containers'][0]['name'] = 'jobs-' + id
         yml['spec']['template']['spec']['containers'][0]['image'] = imagenes[protocol]
 

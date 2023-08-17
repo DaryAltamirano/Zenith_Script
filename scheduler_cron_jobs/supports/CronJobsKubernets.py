@@ -3,18 +3,32 @@ from kubernetes.client import V1Container, V1PodSpec, V1ObjectMeta, V1PodTemplat
 import yaml
 
 class CronJobsKubernets:
-
+    
     def __init__(self):
         # config.load_incluster_config()
         config.load_kube_config()
         self.v1 = client.BatchV1Api()
 
-    def deleteCronJob(self, name, namespace, protocol):
+    def deleteTask(self, id, namespace, protocol):
+        crons = ["http", "coap"]
+        if protocol in crons:
+            self.deleteCronJob(id,namespace)
+        else:
+            self.deleteJob(id,namespace)
+
+    def deleteCronJob(self, id, namespace):
         try:
-            api_response = self.v1.delete_namespaced_cron_job(name=name, namespace=namespace)
+            api_response = self.v1.delete_namespaced_cron_job(name='cron-jobs-' + id, namespace=namespace)
             print("Cronjob eliminado exitosamente.")
         except client.rest.ApiException as e:
             print("Error al eliminar el cronjob:", e)
+
+    def deleteJob(self, id, namespace):
+        try:
+            api_response = self.v1.delete_namespaced_job(name='jobs-' + id, namespace=namespace)
+            print("job eliminado exitosamente.")
+        except client.rest.ApiException as e:
+            print("Error al eliminar el job:", e)
 
     def create_cronjob(self, name, namespace):
         config.load_kube_config()
