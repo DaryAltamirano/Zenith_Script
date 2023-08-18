@@ -37,35 +37,41 @@ def callback(self, method, properties, body):
                 where sensor.id = {}
                 LIMIT 1;'''.format(id_sensor)
 
-    sensor_data = MysqlConnection().getData(sql=sql)
-    json_sensor = json.loads(clearData(sensor_data[0][0]))
-    for item in json_sensor:
-        valor = data_get(json_object['data'] , next(iter(item)), "$")
-        unit = item[next(iter(item))]
-        category = item['category']
-        equip_name = sensor_data[0][1]
-        equip_ref = sensor_data[0][2]
-        space_name = sensor_data[0][3]
-        space_ref = sensor_data[0][4]
-        zone_tz = sensor_data[0][5]
-        protocol = sensor_data[0][6]
-        entity_name = sensor_data[0][7]
+    try:
+        
+        sensor_data = MysqlConnection().getData(sql=sql)
+    
+        json_sensor = json.loads(clearData(sensor_data[0][0]))
+    
+        for item in json_sensor:
+            value = data_get(json_object['data'] , next(iter(item)), "$")
+            unit = item[next(iter(item))]
+            category = item['category']
+            equip_name = sensor_data[0][1]
+            equip_ref = sensor_data[0][2]
+            space_name = sensor_data[0][3]
+            space_ref = sensor_data[0][4]
+            zone_tz = sensor_data[0][5]
+            protocol = sensor_data[0][6]
+            entity_name = sensor_data[0][7]
 
-        influxdb = InfluxDbConnection()
+            influxdb = InfluxDbConnection()
+            if not (value is None):
+                p = Point(category) \
+                    .tag("equip_name", equip_name) \
+                    .tag("equip_ref", equip_ref) \
+                    .tag("space_name", space_name) \
+                    .tag("space_ref", space_ref) \
+                    .tag("zone_tz", zone_tz) \
+                    .tag("protocol", protocol) \
+                    .tag("entity_name", entity_name) \
+                    .tag("unit", unit) \
+                    .field("value", float(value)) 
 
-        p = Point(category) \
-            .tag("equip_name", equip_name) \
-            .tag("equip_ref", equip_ref) \
-            .tag("space_name", space_name) \
-            .tag("space_ref", space_ref) \
-            .tag("zone_tz", zone_tz) \
-            .tag("protocol", protocol) \
-            .tag("entity_name", entity_name) \
-            .field("valor", valor) \
-            .field("unit", unit)
-
-        influxdb.write_api.write(bucket=influxdb.bucket, record=p)
-        print ("write data") 
+                influxdb.write_api.write(bucket=influxdb.bucket, record=p)
+            print ("write data") 
+    except  Exception as e:
+        print("Se produjo una excepción:", e)
 
 def clearData(sensor_data):
     string = sensor_data.replace("\'", "\"").replace("\\", "")
@@ -74,7 +80,6 @@ def clearData(sensor_data):
 def main():
     channel = ConnectionRabbitMQ().channel()
     ConnectionRabbitMQ().basicConsume(channel, callback, None)
-
 
 if __name__ == "__main__":
     main()
