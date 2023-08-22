@@ -23,11 +23,27 @@ async def main():
         LIMIT 1;'''.format(id)
     
     sensor_data = MysqlConnection().getData(sql=sql)
+    dict = json.loads(clearData(sensor_data[0][0]))
 
-    client = AsyncModbusTcpClient("localhost")
+    address = dict['address']
+    function = dict['function']
+    port = dict['port']
+    uri = dict['uri']
+
+    client = AsyncModbusTcpClient(uri = uri, port = port)
     try:
         # Realiza una lectura de datos desde el dispositivo esclavo
-        result = await client.read_coils(address=0, count=8, unit=1)
+
+        if function == 0:
+            result = await client.read_coils(address, count=8, unit=1)
+        elif function == 1:
+            result = await client.read_discrete_inputs(address, count=8, unit=1)
+        elif function == 3:
+            result = await client.read_holding_registers(address, count=8, unit=1)
+        elif function == 4:
+            result = await client.read_holding_registers(address, count=8, unit=1)
+
+
         bits = result.bits
 
         print("Datos leídos:", result.bits)
@@ -54,6 +70,9 @@ async def main():
 
     await client.connect()
     
+def clearData(sensor_data):
+    string = sensor_data.replace("\'", "\"").replace("\\", "")
+    return string[1: len(string) - 1]
 
 
 
