@@ -69,7 +69,7 @@ def callback(self, method, properties, body):
                     .field("value", float(value)) 
 
                 influxdb.write_api.write(bucket=influxdb.bucket, record=p)
-            print ("write data") 
+                print ("write data") 
     except  Exception as e:
         print("Se produjo una excepción:", e)
 
