@@ -43,7 +43,7 @@ async def main():
         body = {
             'id_sensor': id,
             'data': text,
-            'protocol': 'HTTP'
+            'protocol': 'MODBUS'
         }
 
         channel = ConnectionRabbitMQ().channel()
