@@ -15,9 +15,9 @@ spec:
           - name: RABBITMQ_HOST
             value: "192.168.100.43"
           - name: RABBITMQ_USER
-            value: "guest"
+            value: "dary"
           - name: RABBITMQ_PASSWORD
-            value: "guest"
+            value: "dary"
           - name: RABBITMQ_PUBLISH_QUEUE
             value: "format/data"
           - name: RABBITMQ_CONSUMER_QUEUE

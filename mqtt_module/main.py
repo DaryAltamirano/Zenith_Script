@@ -51,7 +51,7 @@ def subscribe(client: mqtt_client, topic):
     def on_message(client, userdata, msg):
         body = {
             'id_sensor': id_sensor,
-            'data': msg.payload.decode(),
+            'data':  json.loads(msg.payload.decode()),
             'protocol': 'MQTT'
         }
 

@@ -1,5 +1,6 @@
 # python 3.6
 
+import json
 import random
 import time
 
@@ -14,9 +15,10 @@ client_id = f'publish-{random.randint(0, 1000)}'
 # username = 'emqx'
 # password = 'public'
 
+
 def connect_mqtt():
     def on_connect(client, userdata, flags, rc):
-        if rc == 0: 
+        if rc == 0:
             print("Connected to MQTT Broker!")
         else:
             print("Failed to connect, return code %d\n", rc)
@@ -32,8 +34,23 @@ def publish(client):
     msg_count = 1
     while True:
         time.sleep(1)
-        msg = f"messages: {msg_count}"
-        result = client.publish(topic, msg)
+        temp_aleatorio = round(random.uniform(20, 31), 2)
+        rco2_aleatorio = round(random.uniform(1800, 2000), 2)
+        humedad_aleatorio = round(random.uniform(30, 100), 2)
+        msg = {
+            "id": "dd85475c-a5ef-4a15-b00f-206e408528b2",
+            "info.aqi": {
+                "ts": "2023-08-22T04:44:50Z",
+                "data": {
+                    "humidity": humedad_aleatorio,
+                    "pm10": 7,
+                    "pm25": 6,
+                    "rco2 (ppm)": rco2_aleatorio,
+                    "temp": temp_aleatorio
+                }
+            }
+        }
+        result = client.publish(topic,  json.dumps(msg))
         # result: [0, 1]
         status = result[0]
         if status == 0:
@@ -41,7 +58,7 @@ def publish(client):
         else:
             print(f"Failed to send message to topic {topic}")
         msg_count += 1
-        if msg_count > 5:
+        if msg_count > 500:
             break
 
 

@@ -19,4 +19,5 @@ async def main():
         print('Result: %s\n%r'%(response.code, response.payload))
 
 if __name__ == "__main__":
+    asyncio.set_event_loop(asyncio.new_event_loop())
     asyncio.run(main())

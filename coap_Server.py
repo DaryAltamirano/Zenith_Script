@@ -1,7 +1,9 @@
 import datetime
+import json
 import logging
 
 import asyncio
+import random
 
 import aiocoap.resource as resource
 import aiocoap
@@ -77,7 +79,23 @@ class TimeResource(resource.ObservableResource):
     async def render_get(self, request):
         payload = datetime.datetime.now().\
                 strftime("%Y-%m-%d %H:%M").encode('ascii')
-        return aiocoap.Message(payload=payload)
+        temp_aleatorio = round(random.uniform(20, 31), 2)
+        rco2_aleatorio = round(random.uniform(1800, 2000), 2)
+        humedad_aleatorio = round(random.uniform(30, 100), 2)
+        msg = {
+            "id": "dd85475c-a5ef-4a15-b00f-206e408528b2",
+            "info.aqi": {
+                "ts": "2023-08-22T04:44:50Z",
+                "data": {
+                    "humidity": humedad_aleatorio,
+                    "pm10": 7,
+                    "pm25": 6,
+                    "rco2 (ppm)": rco2_aleatorio,
+                    "temp": temp_aleatorio
+                }
+            }
+        }
+        return aiocoap.Message(payload= json.dumps(msg).encode())
 
 class WhoAmI(resource.Resource):
     async def render_get(self, request):

@@ -1,9 +1,10 @@
-FROM python:3.9-slim-buster
+FROM darypte/python3.9-slim-buster-mysql:latest
 
 WORKDIR /code
 
 ADD  . /code/
-RUN apt-get update && apt-get install -y build-essential default-mysql-client default-libmysqlclient-dev autoconf
 
-RUN pip install -r requirements.txt  
+RUN pip install -r requirements.txt --no-cache-dir
+RUN apt-get clean
+
 CMD [ "python", "/code/main.py" ]

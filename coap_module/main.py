@@ -28,30 +28,26 @@ async def main():
     method = dict['method']
     port = dict['port']
 
-    try:
-        protocol = await Context.create_client_context()
+    protocol = await Context(loggername=None).create_client_context()
 
-        if method == 'GET':
-            method = GET
-        elif method == 'POST':
-            method = POST
-        else: 
-            method = GET
+    if method == 'GET':
+        method = GET
+    elif method == 'POST':
+        method = POST
+    else: 
+        method = GET
  
-        request = Message(code=method, uri=uri)
+    request = Message(code=method, uri=uri)
 
-        response = await protocol.request(request).response
-        body = {
-            'id_sensor': id,
-            'data': response.payload.decode('utf-8'),
-            'protocol': 'COAP'
-        }
+    response = await protocol.request(request).response
+    body = {
+        'id_sensor': id,
+        'data': json.loads(response.payload.decode()),
+        'protocol': 'COAP'
+    }
 
-        channel = ConnectionRabbitMQ().channel()
-        ConnectionRabbitMQ().basicPublish(channel, json.dumps(body))
-    except Exception as e:
-        print('Failed to fetch resource:')
-        print(e)
+    channel = ConnectionRabbitMQ().channel()
+    ConnectionRabbitMQ().basicPublish(channel, json.dumps(body))
 
 def clearData(sensor_data):
     string = sensor_data.replace("\'", "\"").replace("\\", "")

@@ -48,6 +48,35 @@ def dict_to_yaml_file(data, file_path):
     with open(file_path, 'w') as yaml_file:
         yaml.dump(data, yaml_file, default_flow_style=False)
 
+def setDict(dict_env):
+        
+    for diccionario in dict_env:
+        if diccionario["name"] == "ID_SENSOR":
+            diccionario["value"] = id
+        if diccionario["name"] == "RABBITMQ_PORT":
+            diccionario["value"] = os.getenv('RABBITMQ_PORT')
+        if diccionario["name"] == "RABBITMQ_HOST":
+            diccionario["value"] = os.getenv('RABBITMQ_HOST')
+        if diccionario["name"] == "RABBITMQ_USER":
+            diccionario["value"] = os.getenv('RABBITMQ_USER')
+        if diccionario["name"] == "RABBITMQ_PASSWORD":
+            diccionario["value"] = os.getenv('RABBITMQ_PASSWORD')
+        if diccionario["name"] == "RABBITMQ_PUBLISH_QUEUE":
+            diccionario["value"] = os.getenv('RABBITMQ_PUBLISH_QUEUE')
+        if diccionario["name"] == "RABBITMQ_CONSUMER_QUEUE":
+            diccionario["value"] = os.getenv('RABBITMQ_CONSUMER_QUEUE')
+        if diccionario["name"] == "MYSQL_HOST":
+            diccionario["value"] = os.getenv('MYSQL_HOST', 'db')
+        if diccionario["name"] == "MYSQL_PORT":
+            diccionario["value"] = os.getenv('MYSQL_PORT', '3306')
+        if diccionario["name"] == "MYSQL_USER":
+            diccionario["value"] = os.getenv('MYSQL_USER', 'root')
+        if diccionario["name"] == "MYSQL_PASSWORD":
+            diccionario["value"] = os.getenv('MYSQL_PASSWORD', 'root')
+        if diccionario["name"] == "MYSQL_DATABASE":
+            diccionario["value"] = os.getenv('MYSQL_DATABASE', 'zenith')
+    return dict_env
+
 def scheduler(id, protocol):
     import subprocess
     crons = ["http", "coap"]
@@ -65,11 +94,10 @@ def scheduler(id, protocol):
         yml['spec']['jobTemplate']['spec']['template']['spec']['containers'][0]['name'] = 'cron-jobs-' + id
         yml['spec']['jobTemplate']['spec']['template']['spec']['containers'][0]['image'] = imagenes[protocol]
         dict_env = yml['spec']['jobTemplate']['spec']['template']['spec']['containers'][0]['env']
-
         for diccionario in dict_env:
             if diccionario["name"] == "ID_SENSOR":
                 diccionario["value"] = id
-
+       #dict_env = setDict(dict_env)
         yml['spec']['jobTemplate']['spec']['template']['spec']['containers'][0]['env'] = dict_env
 
         file = './cron_jobs_' + id + '.yaml'
@@ -85,6 +113,7 @@ def scheduler(id, protocol):
         for diccionario in dict_env:
             if diccionario["name"] == "ID_SENSOR":
                 diccionario["value"] = id
+        #dict_env = setDict(dict_env)
 
         yml['spec']['template']['spec']['containers'][0]['env'] = dict_env
 
